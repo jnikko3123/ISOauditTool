@@ -837,22 +837,22 @@ function showRegister() {
 }
 
 function showMainApp() {
-    // Show main app, hide auth screens
+    // Hide auth screens, show app shell
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('registerScreen').style.display = 'none';
     document.getElementById('mainApp').style.display = 'block';
 
-    // Force Dashboard tab as active
+    // Activate Dashboard tab
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector('.nav-tab[data-tab="dashboard"]').classList.add('active');
+    const dashTab = document.querySelector('.nav-tab[data-tab="dashboard"]');
+    if (dashTab) dashTab.classList.add('active');
 
-    // Force Dashboard section visible
-    document.querySelectorAll('.tab-content').forEach(c => {
-        c.style.display = 'none';
-    });
-    document.getElementById('dashboard').style.display = 'block';
+    // Show Dashboard content (by class, not inline style)
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    const dashSection = document.getElementById('dashboard');
+    if (dashSection) dashSection.classList.add('active');
 
-    // Load data
+    // Load data for dashboard + audits list
     loadDashboard();
     loadAudits();
 }
