@@ -1071,7 +1071,6 @@ function createAuditCard(audit) {
     `;
 }
 
-
 function openNewAuditModal() {
   const modal = document.getElementById("newAuditModal");
   if (!modal) return;
