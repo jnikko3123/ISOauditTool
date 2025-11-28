@@ -837,13 +837,26 @@ function showRegister() {
 }
 
 function showMainApp() {
-  document.getElementById("loginScreen").style.display = "none";
-  document.getElementById("registerScreen").style.display = "none";
-  document.getElementById("mainApp").style.display = "block";
+    // Show main app, hide auth screens
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('registerScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
 
-  loadDashboard();
-  loadAudits();
+    // Force Dashboard tab as active
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.nav-tab[data-tab="dashboard"]').classList.add('active');
+
+    // Force Dashboard section visible
+    document.querySelectorAll('.tab-content').forEach(c => {
+        c.style.display = 'none';
+    });
+    document.getElementById('dashboard').style.display = 'block';
+
+    // Load data
+    loadDashboard();
+    loadAudits();
 }
+
 
 // =========================
 // EVENT LISTENERS
