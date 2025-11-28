@@ -863,74 +863,65 @@ function showMainApp() {
 // =========================
 
 function setupEventListeners() {
-  const loginForm = document.getElementById("loginForm");
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
-      await login(email, password);
+    // Login form
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        await login(email, password);
+        // auth listener will call showMainApp()
     });
-  }
 
-  const registerForm = document.getElementById("registerForm");
-  if (registerForm) {
-    registerForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = document.getElementById("regEmail").value;
-      const password = document.getElementById("regPassword").value;
-      const fullName = document.getElementById("regFullName").value;
-      const orgName = document.getElementById("regOrgName").value;
-      const data = await register(email, password, fullName, orgName);
-      if (data) {
-        alert(
-          "Registration successful. Please check your email if confirmation is required, then sign in.",
-        );
-        showLogin();
-      }
+    // Register form
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('regEmail').value;
+        const password = document.getElementById('regPassword').value;
+        const fullName = document.getElementById('regFullName').value;
+        const orgName = document.getElementById('regOrgName').value;
+        await register(email, password, fullName, orgName);
+        // after signUp you may still need to confirm email depending on settings
     });
-  }
 
-  // Tabs
-  document.querySelectorAll(".nav-tab").forEach((tab) => {
-    tab.addEventListener("click", () => {
-      document
-        .querySelectorAll(".nav-tab")
-        .forEach((t) => t.classList.remove("active"));
-      document
-        .querySelectorAll(".tab-content")
-        .forEach((c) => c.classList.remove("active"));
+    // Tab navigation
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabId = tab.dataset.tab;
 
-      tab.classList.add("active");
-      const tabId = tab.dataset.tab;
-      document.getElementById(tabId).classList.add("active");
+            // Switch tab styling
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
 
-      if (tabId === "records") {
-        loadYearlyRecords();
-      } else if (tabId === "analytics") {
-        loadAnalytics();
-      }
+            // Switch visible section
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            const section = document.getElementById(tabId);
+            if (section) section.classList.add('active');
+
+            // Load data per tab
+            if (tabId === 'dashboard') {
+                loadDashboard();
+            } else if (tabId === 'audits') {
+                loadAudits();
+            } else if (tabId === 'records') {
+                loadYearlyRecords();
+            } else if (tabId === 'analytics') {
+                loadAnalytics();
+            }
+        });
     });
-  });
 
-  // Audit filters
-  const filterStandard = document.getElementById("filterStandard");
-  if (filterStandard) filterStandard.addEventListener("change", filterAudits);
+    // Audit filters
+    document.getElementById('filterStandard')?.addEventListener('change', filterAudits);
+    document.getElementById('filterStatus')?.addEventListener('change', filterAudits);
+    document.getElementById('searchAudits')?.addEventListener('input', filterAudits);
 
-  const filterStatus = document.getElementById("filterStatus");
-  if (filterStatus) filterStatus.addEventListener("change", filterAudits);
+    // Year selector
+    document.getElementById('yearSelect')?.addEventListener('change', loadYearlyRecords);
 
-  const searchAudits = document.getElementById("searchAudits");
-  if (searchAudits) searchAudits.addEventListener("input", filterAudits);
-
-  // Year selector
-  const yearSelect = document.getElementById("yearSelect");
-  if (yearSelect) yearSelect.addEventListener("change", loadYearlyRecords);
-
-  // File input for evidence
-  const fileInput = document.getElementById("fileInput");
-  if (fileInput) fileInput.addEventListener("change", handleFileSelect);
+    // Evidence file input
+    document.getElementById('fileInput')?.addEventListener('change', handleFileSelect);
 }
+
 
 // =========================
 // DASHBOARD
