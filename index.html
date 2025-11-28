@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>NMS Audit Portal</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <style>
+            :root {
+                --bg: #0f172a;
+                --bg-soft: #111827;
+                --light: #1f2937;
+                --accent: #6366f1;
+                --accent-soft: rgba(99, 102, 241, 0.1);
+                --danger: #ef4444;
+                --warning: #f59e0b;
+                --success: #16a34a;
+                --text: #f9fafb;
+                --text-light: #9ca3af;
+                --border: #1f2937;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    sans-serif;
+                background: radial-gradient(
+                    circle at top left,
+                    #1e293b,
+                    #020617
+                );
+                color: var(--text);
+            }
+            a {
+                color: var(--accent);
+                cursor: pointer;
+            }
+            .app-shell {
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 24px;
+            }
+            .card {
+                background: rgba(15, 23, 42, 0.9);
+                border: 1px solid rgba(148, 163, 184, 0.1);
+                border-radius: 16px;
+                padding: 24px;
+                box-shadow: 0 18px 45px rgba(15, 23, 42, 0.75);
+                max-width: 420px;
+                width: 100%;
+            }
+            .card h1 {
+                margin-top: 0;
+                margin-bottom: 4px;
+                font-size: 24px;
+            }
+            .muted {
+                color: var(--text-light);
+                font-size: 14px;
+            }
+            .form-group {
+                margin-top: 16px;
+            }
+            .form-group label {
+                display: block;
+                font-size: 13px;
+                margin-bottom: 4px;
+                color: var(--text-light);
+            }
+            .form-control {
+                width: 100%;
+                padding: 10px 12px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                background: rgba(15, 23, 42, 0.8);
+                color: var(--text);
+                font-size: 14px;
+                outline: none;
+            }
+            .form-control:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.4);
+            }
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px 14px;
+                border-radius: 999px;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+                transition:
+                    transform 0.06s ease,
+                    box-shadow 0.06s ease,
+                    background 0.15s ease;
+            }
+            .btn-primary {
+                background: linear-gradient(to right, #6366f1, #4f46e5);
+                color: white;
+                box-shadow: 0 10px 25px rgba(79, 70, 229, 0.45);
+                width: 100%;
+                margin-top: 20px;
+            }
+            .btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 14px 35px rgba(79, 70, 229, 0.6);
+            }
+            .btn-secondary {
+                background: rgba(15, 23, 42, 0.9);
+                color: var(--text);
+                border: 1px solid var(--border);
+            }
+            .btn-sm {
+                padding: 6px 10px;
+                font-size: 12px;
+                border-radius: 999px;
+            }
+            .flex-between {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            /* Main app layout */
+            #mainApp {
+                display: none;
+                min-height: 100vh;
+                background: radial-gradient(
+                    circle at top left,
+                    #111827,
+                    #020617
+                );
+                color: var(--text);
+            }
+            .main-layout {
+                display: grid;
+                grid-template-rows: auto 1fr;
+                min-height: 100vh;
+            }
+            header.app-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px 24px;
+                border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+                background: rgba(15, 23, 42, 0.95);
+                backdrop-filter: blur(18px);
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 600;
+                letter-spacing: 0.04em;
+            }
+            .brand-logo {
+                width: 32px;
+                height: 32px;
+                border-radius: 999px;
+                background: radial-gradient(
+                    circle at 30% 20%,
+                    #f97316,
+                    #4f46e5
+                );
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+            }
+            .user-chip {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 2px;
+                font-size: 12px;
+            }
+            .user-chip span:first-child {
+                font-weight: 500;
+            }
+            .user-chip span:last-child {
+                color: var(--text-light);
+            }
+            .nav-tabs {
+                display: flex;
+                gap: 8px;
+                padding: 10px 24px 0;
+                border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+                background: rgba(15, 23, 42, 0.95);
+                position: sticky;
+                top: 64px;
+                z-index: 9;
+            }
+            .nav-tab {
+                padding: 8px 14px;
+                border-radius: 999px;
+                font-size: 13px;
+                color: var(--text-light);
+                cursor: pointer;
+                border: 1px solid transparent;
+            }
+            .nav-tab.active {
+                background: rgba(99, 102, 241, 0.15);
+                color: #e5e7eb;
+                border-color: rgba(99, 102, 241, 0.3);
+            }
+            .content {
+                padding: 20px 24px 32px;
+            }
+            .grid {
+                display: grid;
+                gap: 16px;
+            }
+            .grid-3 {
+                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            }
+            .panel {
+                background: rgba(15, 23, 42, 0.9);
+                border-radius: 16px;
+                padding: 16px;
+                border: 1px solid rgba(148, 163, 184, 0.12);
+            }
+            .panel h2 {
+                margin: 0 0 8px;
+                font-size: 16px;
+            }
+            .kpi {
+                font-size: 26px;
+                font-weight: 600;
+            }
+            .kpi-label {
+                font-size: 12px;
+                color: var(--text-light);
+            }
+            #recentActivities .activity-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 0;
+                border-bottom: 1px solid rgba(15, 23, 42, 0.7);
+            }
+            #recentActivities .activity-item:last-child {
+                border-bottom: none;
+            }
+            .activity-icon {
+                width: 28px;
+                height: 28px;
+                border-radius: 999px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(15, 23, 42, 0.95);
+                font-size: 16px;
+            }
+            .activity-title {
+                font-size: 13px;
+            }
+            .activity-time {
+                font-size: 11px;
+                color: var(--text-light);
+            }
+
+            .audits-toolbar {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 16px;
+                align-items: center;
+            }
+            .filter-group {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .audit-card {
+                background: rgba(15, 23, 42, 0.9);
+                border-radius: 16px;
+                padding: 16px;
+                border: 1px solid rgba(148, 163, 184, 0.15);
+                margin-bottom: 12px;
+                cursor: pointer;
+                transition:
+                    border 0.12s ease,
+                    transform 0.06s ease,
+                    box-shadow 0.1s ease;
+            }
+            .audit-card:hover {
+                border-color: rgba(129, 140, 248, 0.9);
+                transform: translateY(-1px);
+                box-shadow: 0 12px 30px rgba(15, 23, 42, 0.8);
+            }
+            .audit-header {
+                display: flex;
+                justify-content: space-between;
+                gap: 16px;
+            }
+            .audit-title {
+                font-size: 15px;
+                font-weight: 500;
+                margin-bottom: 4px;
+            }
+            .audit-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                font-size: 12px;
+                color: var(--text-light);
+            }
+            .badge {
+                display: inline-flex;
+                align-items: center;
+                padding: 4px 10px;
+                border-radius: 999px;
+                font-size: 11px;
+                margin-left: 4px;
+                border: 1px solid transparent;
+                white-space: nowrap;
+            }
+            .badge-iso9001 {
+                background: rgba(59, 130, 246, 0.1);
+                color: #93c5fd;
+                border-color: rgba(59, 130, 246, 0.3);
+            }
+            .badge-iso14001 {
+                background: rgba(22, 163, 74, 0.1);
+                color: #6ee7b7;
+                border-color: rgba(22, 163, 74, 0.3);
+            }
+            .badge-iso45001 {
+                background: rgba(234, 179, 8, 0.1);
+                color: #facc15;
+                border-color: rgba(234, 179, 8, 0.3);
+            }
+            .badge-ism {
+                background: rgba(249, 115, 22, 0.1);
+                color: #fed7aa;
+                border-color: rgba(249, 115, 22, 0.3);
+            }
+            .badge-draft {
+                background: rgba(148, 163, 184, 0.2);
+                color: #e5e7eb;
+            }
+            .badge-progress {
+                background: rgba(59, 130, 246, 0.2);
+                color: #bfdbfe;
+            }
+            .badge-complete {
+                background: rgba(16, 185, 129, 0.2);
+                color: #bbf7d0;
+            }
+
+            .tab-content {
+                display: none;
+            }
+            .tab-content.active {
+                display: block;
+            }
+
+            .modal-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, 0.8);
+                backdrop-filter: blur(18px);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 40;
+            }
+            .modal-backdrop.show {
+                display: flex;
+            }
+            .modal {
+                background: rgba(15, 23, 42, 0.98);
+                border-radius: 20px;
+                border: 1px solid rgba(148, 163, 184, 0.2);
+                padding: 20px;
+                max-width: 900px;
+                width: 100%;
+                max-height: 90vh;
+                overflow: auto;
+            }
+            .modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+            .close-btn {
+                border: none;
+                background: transparent;
+                color: var(--text-light);
+                cursor: pointer;
+                font-size: 18px;
+            }
+
+            .audit-section {
+                display: none;
+                margin-top: 12px;
+            }
+            .audit-section.active {
+                display: block;
+            }
+            .audit-question {
+                padding: 12px;
+                border-radius: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.15);
+                background: rgba(15, 23, 42, 0.9);
+                margin-bottom: 10px;
+            }
+            .question-text {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+            .response-options {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+                margin-bottom: 8px;
+            }
+            .response-option {
+                padding: 6px 10px;
+                border-radius: 999px;
+                font-size: 12px;
+                border: 1px solid rgba(148, 163, 184, 0.3);
+                cursor: pointer;
+                color: var(--text-light);
+            }
+            .response-option.conform {
+                border-color: rgba(34, 197, 94, 0.5);
+            }
+            .response-option.minor {
+                border-color: rgba(245, 158, 11, 0.5);
+            }
+            .response-option.major {
+                border-color: rgba(239, 68, 68, 0.5);
+            }
+            .response-option.selected {
+                background: rgba(129, 140, 248, 0.2);
+                border-color: rgba(129, 140, 248, 0.8);
+                color: #e5e7eb;
+            }
+            .evidence-container {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin-top: 6px;
+            }
+            .evidence-button {
+                display: inline-flex;
+                align-items: center;
+                padding: 6px 10px;
+                border-radius: 999px;
+                border: 1px dashed rgba(148, 163, 184, 0.5);
+                font-size: 12px;
+                cursor: pointer;
+                color: var(--text-light);
+            }
+            .evidence-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .evidence-item {
+                width: 60px;
+                height: 60px;
+                border-radius: 8px;
+                overflow: hidden;
+                border: 1px solid rgba(148, 163, 184, 0.4);
+                background: rgba(15, 23, 42, 0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 20px;
+            }
+            .evidence-item img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            .progress-bar-wrap {
+                width: 100%;
+                height: 8px;
+                border-radius: 999px;
+                background: rgba(15, 23, 42, 0.9);
+                border: 1px solid rgba(148, 163, 184, 0.3);
+                overflow: hidden;
+            }
+            .progress-bar-inner {
+                height: 100%;
+                width: 0%;
+                background: linear-gradient(to right, #6366f1, #22c55e);
+                transition: width 0.2s ease;
+            }
+            .chart-container {
+                position: relative;
+                height: 220px;
+                width: 100%;
+            }
+            @media (max-width: 768px) {
+                header.app-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 8px;
+                }
+                .nav-tabs {
+                    flex-wrap: nowrap;
+                    overflow-x: auto;
+                }
+            }
+        </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    </head>
+    <body>
+        <!-- LOGIN -->
+        <div id="loginScreen" class="app-shell">
+            <div class="card">
+                <h1>Sign in</h1>
+                <p class="muted">Audit & compliance dashboard for NMS.</p>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input
+                            id="loginEmail"
+                            type="email"
+                            class="form-control"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input
+                            id="loginPassword"
+                            type="password"
+                            class="form-control"
+                            required
+                        />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Sign in
+                    </button>
+                </form>
+
+                <p class="muted" style="margin-top: 16px">
+                    No account yet?
+                    <a onclick="showRegister()">Create one</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- REGISTER -->
+        <div id="registerScreen" class="app-shell" style="display: none">
+            <div class="card">
+                <h1>Create account</h1>
+                <p class="muted">Register with your NMS email.</p>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="regFullName">Full name</label>
+                        <input
+                            id="regFullName"
+                            type="text"
+                            class="form-control"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="regOrgName">Organization</label>
+                        <input
+                            id="regOrgName"
+                            type="text"
+                            class="form-control"
+                            placeholder="Navtec Marine Services"
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email</label>
+                        <input
+                            id="regEmail"
+                            type="email"
+                            class="form-control"
+                            required
+                        />
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input
+                            id="regPassword"
+                            type="password"
+                            class="form-control"
+                            required
+                        />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        Register
+                    </button>
+                </form>
+
+                <p class="muted" style="margin-top: 16px">
+                    Already have an account?
+                    <a onclick="showLogin()">Sign in</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- MAIN APP -->
+        <div id="mainApp">
+            <div class="main-layout">
+                <header class="app-header">
+                    <div class="brand">
+                        <div class="brand-logo">N</div>
+                        <div>
+                            <div style="font-size: 14px">NMS Audit Center</div>
+                            <div
+                                style="
+                                    font-size: 11px;
+                                    color: var(--text-light);
+                                "
+                            >
+                                ISO / ISM internal audit management
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center">
+                        <div class="user-chip">
+                            <span id="userName">User</span>
+                            <span id="userOrg">Org</span>
+                        </div>
+                        <button
+                            class="btn btn-secondary btn-sm"
+                            onclick="logout()"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </header>
+
+                <div class="nav-tabs">
+                    <div class="nav-tab active" data-tab="dashboard">
+                        Dashboard
+                    </div>
+                    <div class="nav-tab" data-tab="audits">Audits</div>
+                    <div class="nav-tab" data-tab="records">Yearly Records</div>
+                    <div class="nav-tab" data-tab="analytics">Analytics</div>
+                    <div class="nav-tab" data-tab="settings">Settings</div>
+                </div>
+
+                <main class="content">
+                    <!-- DASHBOARD TAB -->
+                    <section id="dashboard" class="tab-content active">
+                        <div class="grid grid-3">
+                            <div class="panel">
+                                <h2>Audits</h2>
+                                <div class="kpi" id="totalAudits">0</div>
+                                <div class="kpi-label">Total audits</div>
+                            </div>
+                            <div class="panel">
+                                <h2>Completed</h2>
+                                <div class="kpi" id="completedAudits">0</div>
+                                <div class="kpi-label">Audits completed</div>
+                            </div>
+                            <div class="panel">
+                                <h2>In progress</h2>
+                                <div class="kpi" id="pendingAudits">0</div>
+                                <div class="kpi-label">Ongoing audits</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-3" style="margin-top: 16px">
+                            <div class="panel">
+                                <h2>Active NCs</h2>
+                                <div class="kpi" id="openNCs">0</div>
+                                <div class="kpi-label">
+                                    Open major & minor NCs
+                                </div>
+                            </div>
+                            <div class="panel">
+                                <h2>Observations</h2>
+                                <div class="kpi" id="openObs">0</div>
+                                <div class="kpi-label">
+                                    Open observations (OBS)
+                                </div>
+                            </div>
+                            <div class="panel">
+                                <h2>Last completed audit</h2>
+                                <div class="kpi-label" id="lastAuditTitle">
+                                    No completed audits yet
+                                </div>
+                                <div
+                                    class="kpi-label"
+                                    id="lastAuditMeta"
+                                    style="
+                                        margin-top: 4px;
+                                        color: var(--text-light);
+                                    "
+                                >
+                                    –
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="grid"
+                            style="
+                                margin-top: 16px;
+                                grid-template-columns: 2fr 1fr;
+                            "
+                        >
+                            <div class="panel">
+                                <h2>Audit trend</h2>
+                                <div class="chart-container">
+                                    <canvas id="trendChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="panel">
+                                <div class="flex-between">
+                                    <h2>Open findings</h2>
+                                    <div
+                                        class="kpi"
+                                        id="totalFindings"
+                                        style="font-size: 20px"
+                                    >
+                                        0
+                                    </div>
+                                </div>
+                                <div
+                                    class="chart-container"
+                                    style="margin-top: 10px"
+                                >
+                                    <canvas id="findingsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel" style="margin-top: 16px">
+                            <h2>Recent activity</h2>
+                            <div id="recentActivities"></div>
+                        </div>
+                    </section>
+
+                    <!-- AUDITS TAB -->
+                    <section id="audits" class="tab-content">
+                        <div class="audits-toolbar">
+                            <div class="filter-group">
+                                <select
+                                    id="filterStandard"
+                                    class="form-control"
+                                    style="max-width: 160px"
+                                >
+                                    <option value="">All standards</option>
+                                    <option value="ISO9001">ISO 9001</option>
+                                    <option value="ISO14001">ISO 14001</option>
+                                    <option value="ISO45001">ISO 45001</option>
+                                    <option value="ISM">ISM Code</option>
+                                </select>
+                                <select
+                                    id="filterStatus"
+                                    class="form-control"
+                                    style="max-width: 150px"
+                                >
+                                    <option value="">All status</option>
+                                    <option value="draft">Draft</option>
+                                    <option value="progress">
+                                        In progress
+                                    </option>
+                                    <option value="complete">Complete</option>
+                                </select>
+                                <input
+                                    id="searchAudits"
+                                    class="form-control"
+                                    style="max-width: 200px"
+                                    placeholder="Search audits..."
+                                />
+                            </div>
+                            <button
+                                class="btn btn-primary btn-sm"
+                                style="width: auto"
+                                onclick="openNewAuditModal()"
+                            >
+                                + New audit
+                            </button>
+                        </div>
+
+                        <div id="auditsList"></div>
+                    </section>
+
+                    <!-- YEARLY RECORDS TAB -->
+                    <section id="records" class="tab-content">
+                        <div class="flex-between" style="margin-bottom: 12px">
+                            <h2>Yearly overview</h2>
+                            <select
+                                id="yearSelect"
+                                class="form-control"
+                                style="max-width: 120px"
+                            >
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-3">
+                            <div class="panel">
+                                <h2>Audits in year</h2>
+                                <div class="kpi" id="yearTotalAudits">0</div>
+                            </div>
+                            <div class="panel">
+                                <h2>Compliance</h2>
+                                <div class="kpi" id="yearCompliance">0%</div>
+                            </div>
+                            <div class="panel">
+                                <h2>Nonconformities</h2>
+                                <div class="kpi-label">
+                                    Major: <span id="yearMajorNC">0</span>
+                                </div>
+                                <div class="kpi-label">
+                                    Minor: <span id="yearMinorNC">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="grid"
+                            style="
+                                margin-top: 16px;
+                                grid-template-columns: 2fr 1fr;
+                            "
+                        >
+                            <div class="panel">
+                                <h2>Monthly audits</h2>
+                                <div class="chart-container">
+                                    <canvas id="monthlyChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="panel">
+                                <h2>Standards coverage</h2>
+                                <div class="chart-container">
+                                    <canvas id="standardsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel" style="margin-top: 16px">
+                            <h2>Most recurring findings</h2>
+                            <div id="recurringFindings"></div>
+                        </div>
+                    </section>
+
+                    <!-- ANALYTICS TAB -->
+                    <section id="analytics" class="tab-content">
+                        <div
+                            class="grid"
+                            style="grid-template-columns: 1.5fr 1fr"
+                        >
+                            <div class="panel">
+                                <h2>Department compliance</h2>
+                                <div class="chart-container">
+                                    <canvas id="deptChart"></canvas>
+                                </div>
+                            </div>
+                            <div class="panel">
+                                <h2>Corrective action status</h2>
+                                <div class="chart-container">
+                                    <canvas id="actionChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- SETTINGS TAB -->
+                    <section id="settings" class="tab-content">
+                        <div class="panel" style="max-width: 480px">
+                            <h2>User settings</h2>
+                            <div class="form-group">
+                                <label for="settingsName">Full name</label>
+                                <input
+                                    id="settingsName"
+                                    type="text"
+                                    class="form-control"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="settingsOrg">Organization</label>
+                                <input
+                                    id="settingsOrg"
+                                    type="text"
+                                    class="form-control"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="settingsCert">Certifications</label>
+                                <input
+                                    id="settingsCert"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="e.g. NEBOSH, ISO Lead Auditor"
+                                />
+                            </div>
+                            <button
+                                class="btn btn-primary"
+                                style="width: auto; margin-top: 18px"
+                                onclick="saveSettings()"
+                            >
+                                Save settings
+                            </button>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </div>
+
+        <!-- MODAL: New Audit -->
+        <div id="newAuditModal" class="modal-backdrop">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>New audit</h2>
+                    <button
+                        class="close-btn"
+                        onclick="closeModal('newAuditModal')"
+                    >
+                        ✕
+                    </button>
+                </div>
+                <form
+                    id="newAuditForm"
+                    onsubmit="
+                        event.preventDefault();
+                        createAudit();
+                    "
+                >
+                    <div
+                        class="grid"
+                        style="grid-template-columns: 1.5fr 1fr; gap: 12px"
+                    >
+                        <div>
+                            <div class="form-group">
+                                <label for="auditTitle">Audit title</label>
+                                <input
+                                    id="auditTitle"
+                                    class="form-control"
+                                    placeholder="ISO 9001 Internal Audit - Marine Ops"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="auditScope">Scope</label>
+                                <textarea
+                                    id="auditScope"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Marine operations, jack-up barge Caracara 6401, QMS processes..."
+                                ></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label for="auditStandard">Standard</label>
+                                <select
+                                    id="auditStandard"
+                                    class="form-control"
+                                    required
+                                >
+                                    <option value="">Select standard</option>
+                                    <option value="ISO9001">ISO 9001</option>
+                                    <option value="ISO14001">ISO 14001</option>
+                                    <option value="ISO45001">ISO 45001</option>
+                                    <option value="ISM">ISM Code</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="auditDepartment">Department</label>
+                                <input
+                                    id="auditDepartment"
+                                    class="form-control"
+                                    placeholder="Operations, HSQE, etc."
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="auditDate">Scheduled date</label>
+                                <input
+                                    id="auditDate"
+                                    type="date"
+                                    class="form-control"
+                                    required
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label for="auditTeam">Audit team</label>
+                                <input
+                                    id="auditTeam"
+                                    class="form-control"
+                                    placeholder="Lead auditor, team members..."
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px; text-align: right">
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            onclick="closeModal('newAuditModal')"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-sm"
+                            style="margin-left: 8px"
+                        >
+                            Create audit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- MODAL: Audit Execution -->
+        <div id="auditExecutionModal" class="modal-backdrop">
+            <div class="modal">
+                <div class="modal-header">
+                    <div>
+                        <div style="font-size: 13px; color: var(--text-light)">
+                            Executing audit
+                        </div>
+                        <h2 id="auditExecutionTitle">Audit title</h2>
+                    </div>
+                    <button
+                        class="close-btn"
+                        onclick="closeModal('auditExecutionModal')"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div class="flex-between" style="margin-bottom: 8px">
+                    <span
+                        id="sectionIndicator"
+                        style="font-size: 12px; color: var(--text-light)"
+                    ></span>
+                    <span
+                        id="progressText"
+                        style="font-size: 12px; color: var(--text-light)"
+                    >
+                        0% Complete
+                    </span>
+                </div>
+                <div class="progress-bar-wrap">
+                    <div id="auditProgress" class="progress-bar-inner"></div>
+                </div>
+
+                <div id="auditSections" style="margin-top: 12px"></div>
+
+                <div class="flex-between" style="margin-top: 16px">
+                    <div>
+                        <button
+                            id="prevSection"
+                            class="btn btn-secondary btn-sm"
+                            onclick="navigateSection(-1)"
+                        >
+                            Previous
+                        </button>
+                        <button
+                            id="nextSection"
+                            class="btn btn-secondary btn-sm"
+                            style="margin-left: 6px"
+                            onclick="navigateSection(1)"
+                        >
+                            Next
+                        </button>
+                    </div>
+                    <div>
+                        <button
+                            class="btn btn-secondary btn-sm"
+                            onclick="saveAuditProgress()"
+                        >
+                            Save progress
+                        </button>
+                        <button
+                            class="btn btn-primary btn-sm"
+                            style="margin-left: 6px"
+                            onclick="completeAudit()"
+                        >
+                            Complete audit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: Evidence -->
+        <div id="evidenceModal" class="modal-backdrop">
+            <div class="modal" style="max-width: 600px">
+                <div class="modal-header">
+                    <h2>Add evidence</h2>
+                    <button
+                        class="close-btn"
+                        onclick="closeModal('evidenceModal')"
+                    >
+                        ✕
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label>Evidence description</label>
+                    <textarea
+                        id="evidenceDescription"
+                        class="form-control"
+                        rows="2"
+                        placeholder="Describe the document/photo, reference number, etc."
+                    ></textarea>
+                </div>
+
+                <div
+                    style="
+                        margin-top: 10px;
+                        display: flex;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                    "
+                >
+                    <button
+                        class="btn btn-secondary btn-sm"
+                        type="button"
+                        onclick="selectFile()"
+                    >
+                        Upload file
+                    </button>
+                    <button
+                        class="btn btn-secondary btn-sm"
+                        type="button"
+                        onclick="capturePhoto()"
+                    >
+                        Use camera
+                    </button>
+                    <input id="fileInput" type="file" style="display: none" />
+                </div>
+
+                <div
+                    id="cameraContainer"
+                    style="display: none; margin-top: 12px"
+                >
+                    <video
+                        id="video"
+                        autoplay
+                        style="
+                            max-width: 100%;
+                            border-radius: 12px;
+                            border: 1px solid var(--border);
+                        "
+                    ></video>
+                    <button
+                        class="btn btn-secondary btn-sm"
+                        style="margin-top: 8px"
+                        type="button"
+                        onclick="takePhoto()"
+                    >
+                        Capture photo
+                    </button>
+                    <canvas id="canvas" style="display: none"></canvas>
+                </div>
+
+                <div style="margin-top: 12px">
+                    <label style="font-size: 12px; color: var(--text-light)"
+                        >Preview</label
+                    >
+                    <div id="evidencePreview" style="margin-top: 4px"></div>
+                </div>
+
+                <div style="margin-top: 16px; text-align: right">
+                    <button
+                        class="btn btn-secondary btn-sm"
+                        type="button"
+                        onclick="closeModal('evidenceModal')"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        class="btn btn-primary btn-sm"
+                        type="button"
+                        style="margin-left: 6px"
+                        onclick="saveEvidence()"
+                    >
+                        Save evidence
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="app.js"></script>
+    </body>
+</html>
