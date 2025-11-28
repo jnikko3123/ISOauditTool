@@ -120,6 +120,15 @@
                 color: var(--text);
                 border: 1px solid var(--border);
             }
+            .alert {
+                margin-top: 12px;
+                padding: 10px 12px;
+                border-radius: 12px;
+                border: 1px solid rgba(248, 113, 113, 0.35);
+                background: rgba(248, 113, 113, 0.12);
+                color: #fecdd3;
+                font-size: 13px;
+            }
             .btn-sm {
                 padding: 6px 10px;
                 font-size: 12px;
@@ -144,7 +153,7 @@
             }
             .main-layout {
                 display: grid;
-                grid-template-rows: auto 1fr;
+                grid-template-rows: auto auto 1fr;
                 min-height: 100vh;
             }
             header.app-header {
@@ -532,6 +541,8 @@
                 <h1>Sign in</h1>
                 <p class="muted">Audit & compliance dashboard for NMS.</p>
 
+                <div id="authError" class="alert" style="display: none"></div>
+
                 <form id="loginForm">
                     <div class="form-group">
                         <label for="loginEmail">Email</label>
@@ -568,6 +579,8 @@
             <div class="card">
                 <h1>Create account</h1>
                 <p class="muted">Register with your NMS email.</p>
+
+                <div id="registerMessage" class="alert" style="display: none"></div>
 
                 <form id="registerForm">
                     <div class="form-group">
@@ -1203,6 +1216,7 @@
             </div>
         </div>
 
+        <script src="env.js"></script>
         <script src="app.js"></script>
     </body>
 </html>

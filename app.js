@@ -1,6 +1,18 @@
-// Supabase Configuration - Replace with your own keys
-const SUPABASE_URL = "https://caamyofnnhtmiyxqlwys.supabase.co";
-const SUPABASE_ANON_KEY = "sb_secret_wIpX7Lnr-LGxy01avKcRFw_B6Wa6dWM";
+// Supabase Configuration - supplied at build time through env.js
+const SUPABASE_URL = window.__ENV__?.SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.__ENV__?.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  const missing = [];
+  if (!SUPABASE_URL) missing.push("SUPABASE_URL");
+  if (!SUPABASE_ANON_KEY) missing.push("SUPABASE_ANON_KEY");
+
+  const message = `Missing required environment variables: ${missing.join(", ")}. ` +
+    "Ensure they are configured in Netlify (Site settings → Build & deploy → Environment).";
+  console.error(message);
+  alert(message);
+  throw new Error(message);
+}
 
 // Initialize Supabase client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -725,6 +737,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 // =========================
 
 async function login(email, password) {
+  const errorBox = document.getElementById("authError");
+
+  if (errorBox) {
+    errorBox.style.display = "none";
+    errorBox.textContent = "";
+  }
+
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -732,14 +751,31 @@ async function login(email, password) {
     });
 
     if (error) throw error;
+
+    currentUser = data.user;
+    await loadUserProfile();
+    showMainApp();
+
     return data;
   } catch (error) {
-    alert("Login failed: " + error.message);
+    if (errorBox) {
+      errorBox.textContent = error.message || "Unable to sign in.";
+      errorBox.style.display = "block";
+    } else {
+      alert("Login failed: " + error.message);
+    }
     return null;
   }
 }
 
 async function register(email, password, fullName, orgName) {
+  const registerMessage = document.getElementById("registerMessage");
+
+  if (registerMessage) {
+    registerMessage.style.display = "none";
+    registerMessage.textContent = "";
+  }
+
   try {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -758,9 +794,20 @@ async function register(email, password, fullName, orgName) {
     if (data.user) {
       await createUserProfile(data.user.id, fullName, orgName, email);
     }
+    if (registerMessage) {
+      registerMessage.textContent =
+        "Registration successful. Check your inbox for confirmation, then sign in.";
+      registerMessage.style.display = "block";
+    }
+
     return data;
   } catch (error) {
-    alert("Registration failed: " + error.message);
+    if (registerMessage) {
+      registerMessage.textContent = error.message || "Unable to register.";
+      registerMessage.style.display = "block";
+    } else {
+      alert("Registration failed: " + error.message);
+    }
     return null;
   }
 }
@@ -828,12 +875,24 @@ function showLogin() {
   document.getElementById("loginScreen").style.display = "flex";
   document.getElementById("registerScreen").style.display = "none";
   document.getElementById("mainApp").style.display = "none";
+
+  const errorBox = document.getElementById("authError");
+  if (errorBox) {
+    errorBox.style.display = "none";
+    errorBox.textContent = "";
+  }
 }
 
 function showRegister() {
   document.getElementById("loginScreen").style.display = "none";
   document.getElementById("registerScreen").style.display = "flex";
   document.getElementById("mainApp").style.display = "none";
+
+  const registerMessage = document.getElementById("registerMessage");
+  if (registerMessage) {
+    registerMessage.style.display = "none";
+    registerMessage.textContent = "";
+  }
 }
 
 function showMainApp() {
@@ -868,13 +927,7 @@ function setupEventListeners() {
       const password = document.getElementById("regPassword").value;
       const fullName = document.getElementById("regFullName").value;
       const orgName = document.getElementById("regOrgName").value;
-      const data = await register(email, password, fullName, orgName);
-      if (data) {
-        alert(
-          "Registration successful. Please check your email if confirmation is required, then sign in.",
-        );
-        showLogin();
-      }
+      await register(email, password, fullName, orgName);
     });
   }
 
