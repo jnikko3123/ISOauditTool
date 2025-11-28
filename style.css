@@ -712,6 +712,12 @@ button {
     font-size: 0.82rem;
 }
 
+.btn-secondary.btn-sm {
+    padding: 6px 10px;
+    font-size: 12px;
+    border-radius: 999px;
+}
+
 /* Small screens */
 
 @media (max-width: 768px) {
