@@ -1046,30 +1046,40 @@ async function loadAudits() {
 }
 
 function createAuditCard(audit) {
-  const template = auditTemplates[audit.standard];
-  const badgeClass = `badge-${audit.standard.toLowerCase()}`;
-  const statusBadgeClass = `badge-${audit.status}`;
-  const progress = audit.progress || 0;
+    const template = auditTemplates[audit.standard];
+    const badgeClass = `badge-${audit.standard.toLowerCase()}`;
+    const statusBadgeClass = `badge-${audit.status}`;
 
-  return `
-    <div class="audit-card" data-standard="${audit.standard}" data-status="${audit.status}" onclick="openAudit('${audit.id}')">
-      <div class="audit-header">
-        <div>
-          <div class="audit-title">${audit.title}</div>
-          <div class="audit-meta">
-            <span>📅 ${audit.scheduled_date ? new Date(audit.scheduled_date).toLocaleDateString() : "No date"}</span>
-            <span>🏢 ${audit.department || "N/A"}</span>
-            <span>📊 ${progress}% Complete</span>
-          </div>
+    return `
+        <div class="audit-card" onclick="openAudit('${audit.id}')">
+            <div class="audit-header">
+                <div>
+                    <div class="audit-title">${audit.title}</div>
+                    <div class="audit-meta">
+                        <span>📅 ${new Date(audit.scheduled_date).toLocaleDateString()}</span>
+                        <span>🏢 ${audit.department}</span>
+                        <span>📊 ${audit.progress || 0}% Complete</span>
+                        ${audit.findings_count != null ? `<span>⚠️ ${audit.findings_count} findings</span>` : ''}
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div>
+                        <span class="badge ${badgeClass}">${template?.name || audit.standard}</span>
+                        <span class="badge ${statusBadgeClass}">${audit.status.toUpperCase()}</span>
+                    </div>
+                    <button
+                        class="btn btn-secondary btn-sm"
+                        style="margin-top: 8px;"
+                        onclick="event.stopPropagation(); openAudit('${audit.id}')"
+                    >
+                        ${audit.status === 'draft' || audit.status === 'progress' ? 'Open / Edit' : 'View'}
+                    </button>
+                </div>
+            </div>
         </div>
-        <div>
-          <span class="badge ${badgeClass}">${template?.name || audit.standard}</span>
-          <span class="badge ${statusBadgeClass}">${audit.status.toUpperCase()}</span>
-        </div>
-      </div>
-    </div>
-  `;
+    `;
 }
+
 
 function openNewAuditModal() {
   const modal = document.getElementById("newAuditModal");
