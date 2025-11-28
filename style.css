@@ -718,6 +718,14 @@ button {
     border-radius: 999px;
 }
 
+#loginScreen,
+#registerScreen {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
 /* Small screens */
 
 @media (max-width: 768px) {

@@ -724,6 +724,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // AUTH FUNCTIONS
 // =========================
 
+// Authentication Functions
 async function login(email, password) {
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -732,9 +733,20 @@ async function login(email, password) {
     });
 
     if (error) throw error;
+
+    // Force UI state after successful login
+    currentUser = data.user; // <-- important
+    await loadUserProfile();
+    showMainApp();
+    await loadDashboard();
+    await loadAudits();
+    await loadYearlyRecords();
+    await loadAnalytics();
+
     return data;
   } catch (error) {
     alert("Login failed: " + error.message);
+    console.error("Login error:", error);
     return null;
   }
 }
@@ -754,13 +766,25 @@ async function register(email, password, fullName, orgName) {
 
     if (error) throw error;
 
-    // Create profile row
     if (data.user) {
+      currentUser = data.user;
       await createUserProfile(data.user.id, fullName, orgName, email);
+      await loadUserProfile();
+      showMainApp();
+      await loadDashboard();
+      await loadAudits();
+      await loadYearlyRecords();
+      await loadAnalytics();
+    } else {
+      alert(
+        "Registration successful. Please check your email to confirm your account.",
+      );
     }
+
     return data;
   } catch (error) {
     alert("Registration failed: " + error.message);
+    console.error("Registration error:", error);
     return null;
   }
 }
@@ -837,91 +861,109 @@ function showRegister() {
 }
 
 function showMainApp() {
-    // Hide auth screens, show app shell
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('registerScreen').style.display = 'none';
-    document.getElementById('mainApp').style.display = 'block';
+  // Hide auth screens, show app shell
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("registerScreen").style.display = "none";
+  document.getElementById("mainApp").style.display = "block";
 
-    // Activate Dashboard tab
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    const dashTab = document.querySelector('.nav-tab[data-tab="dashboard"]');
-    if (dashTab) dashTab.classList.add('active');
+  // Activate Dashboard tab
+  document
+    .querySelectorAll(".nav-tab")
+    .forEach((t) => t.classList.remove("active"));
+  const dashTab = document.querySelector('.nav-tab[data-tab="dashboard"]');
+  if (dashTab) dashTab.classList.add("active");
 
-    // Show Dashboard content (by class, not inline style)
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    const dashSection = document.getElementById('dashboard');
-    if (dashSection) dashSection.classList.add('active');
+  // Show Dashboard content (by class, not inline style)
+  document
+    .querySelectorAll(".tab-content")
+    .forEach((c) => c.classList.remove("active"));
+  const dashSection = document.getElementById("dashboard");
+  if (dashSection) dashSection.classList.add("active");
 
-    // Load data for dashboard + audits list
-    loadDashboard();
-    loadAudits();
+  // Load data for dashboard + audits list
+  loadDashboard();
+  loadAudits();
 }
-
 
 // =========================
 // EVENT LISTENERS
 // =========================
 
 function setupEventListeners() {
-    // Login form
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        await login(email, password);
-        // auth listener will call showMainApp()
+  // Login form
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+    await login(email, password);
+    // auth listener will call showMainApp()
+  });
+
+  // Register form
+  document
+    .getElementById("registerForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+      const fullName = document.getElementById("regFullName").value;
+      const orgName = document.getElementById("regOrgName").value;
+      await register(email, password, fullName, orgName);
+      // after signUp you may still need to confirm email depending on settings
     });
 
-    // Register form
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('regEmail').value;
-        const password = document.getElementById('regPassword').value;
-        const fullName = document.getElementById('regFullName').value;
-        const orgName = document.getElementById('regOrgName').value;
-        await register(email, password, fullName, orgName);
-        // after signUp you may still need to confirm email depending on settings
+  // Tab navigation
+  document.querySelectorAll(".nav-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const tabId = tab.dataset.tab;
+
+      // Switch tab styling
+      document
+        .querySelectorAll(".nav-tab")
+        .forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+
+      // Switch visible section
+      document
+        .querySelectorAll(".tab-content")
+        .forEach((c) => c.classList.remove("active"));
+      const section = document.getElementById(tabId);
+      if (section) section.classList.add("active");
+
+      // Load data per tab
+      if (tabId === "dashboard") {
+        loadDashboard();
+      } else if (tabId === "audits") {
+        loadAudits();
+      } else if (tabId === "records") {
+        loadYearlyRecords();
+      } else if (tabId === "analytics") {
+        loadAnalytics();
+      }
     });
+  });
 
-    // Tab navigation
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            const tabId = tab.dataset.tab;
+  // Audit filters
+  document
+    .getElementById("filterStandard")
+    ?.addEventListener("change", filterAudits);
+  document
+    .getElementById("filterStatus")
+    ?.addEventListener("change", filterAudits);
+  document
+    .getElementById("searchAudits")
+    ?.addEventListener("input", filterAudits);
 
-            // Switch tab styling
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
+  // Year selector
+  document
+    .getElementById("yearSelect")
+    ?.addEventListener("change", loadYearlyRecords);
 
-            // Switch visible section
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            const section = document.getElementById(tabId);
-            if (section) section.classList.add('active');
-
-            // Load data per tab
-            if (tabId === 'dashboard') {
-                loadDashboard();
-            } else if (tabId === 'audits') {
-                loadAudits();
-            } else if (tabId === 'records') {
-                loadYearlyRecords();
-            } else if (tabId === 'analytics') {
-                loadAnalytics();
-            }
-        });
-    });
-
-    // Audit filters
-    document.getElementById('filterStandard')?.addEventListener('change', filterAudits);
-    document.getElementById('filterStatus')?.addEventListener('change', filterAudits);
-    document.getElementById('searchAudits')?.addEventListener('input', filterAudits);
-
-    // Year selector
-    document.getElementById('yearSelect')?.addEventListener('change', loadYearlyRecords);
-
-    // Evidence file input
-    document.getElementById('fileInput')?.addEventListener('change', handleFileSelect);
+  // Evidence file input
+  document
+    .getElementById("fileInput")
+    ?.addEventListener("change", handleFileSelect);
 }
-
 
 // =========================
 // DASHBOARD
@@ -1037,11 +1079,11 @@ async function loadAudits() {
 }
 
 function createAuditCard(audit) {
-    const template = auditTemplates[audit.standard];
-    const badgeClass = `badge-${audit.standard.toLowerCase()}`;
-    const statusBadgeClass = `badge-${audit.status}`;
+  const template = auditTemplates[audit.standard];
+  const badgeClass = `badge-${audit.standard.toLowerCase()}`;
+  const statusBadgeClass = `badge-${audit.status}`;
 
-    return `
+  return `
         <div class="audit-card" onclick="openAudit('${audit.id}')">
             <div class="audit-header">
                 <div>
@@ -1050,22 +1092,15 @@ function createAuditCard(audit) {
                         <span>📅 ${new Date(audit.scheduled_date).toLocaleDateString()}</span>
                         <span>🏢 ${audit.department}</span>
                         <span>📊 ${audit.progress || 0}% Complete</span>
-                        ${audit.findings_count != null ? `<span>⚠️ ${audit.findings_count} findings</span>` : ''}
                     </div>
                 </div>
-                <div style="text-align: right;">
-                    <div>
-                        <span class="badge ${badgeClass}">${template?.name || audit.standard}</span>
-                        <span class="badge ${statusBadgeClass}">${audit.status.toUpperCase()}</span>
-                    </div>
-                    <button
-                        class="btn btn-secondary btn-sm"
-                        style="margin-top: 8px;"
-                        onclick="event.stopPropagation(); openAudit('${audit.id}')"
-                    >
-                        ${audit.status === 'draft' || audit.status === 'progress' ? 'Open / Edit' : 'View'}
-                    </button>
+                <div>
+                    <span class="badge ${badgeClass}">${template?.name || audit.standard}</span>
+                    <span class="badge ${statusBadgeClass}">${audit.status.toUpperCase()}</span>
                 </div>
+            </div>
+            <div style="margin-top: 8px; font-size: 12px; color: var(--text-light); display:flex; gap:8px;">
+                <span style="opacity:0.8;">Click card to continue audit</span>
             </div>
         </div>
     `;

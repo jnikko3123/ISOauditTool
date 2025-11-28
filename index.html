@@ -530,7 +530,7 @@
         <div id="loginScreen" class="app-shell">
             <div class="card">
                 <h1>Sign in</h1>
-                <p class="muted">Audit & compliance dashboard for NMS.</p>
+                <p class="muted">Audit & Compliance Dashboard.</p>
 
                 <form id="loginForm">
                     <div class="form-group">
@@ -619,124 +619,139 @@
         </div>
 
         <!-- MAIN APP -->
-        <div id="mainApp">
-            <div class="main-layout">
-                <header class="app-header">
-                    <div class="brand">
-                        <div class="brand-logo">N</div>
-                        <div>
-                            <div style="font-size: 14px">NMS Audit Center</div>
-                            <div
-                                style="
-                                    font-size: 11px;
-                                    color: var(--text-light);
-                                "
-                            >
-                                ISO / ISM internal audit management
-                            </div>
+        <!-- MAIN APP -->
+        <div id="mainApp" style="display: none">
+            <!-- TOP BAR -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <div class="brand-mark">
+                        <span class="brand-initial">N</span>
+                    </div>
+                    <div class="brand-text">
+                        <div class="brand-title">NMS Audit Center</div>
+                        <div class="brand-subtitle">
+                            ISO / ISM internal audit management
                         </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center">
-                        <div class="user-chip">
-                            <span id="userName">User</span>
-                            <span id="userOrg">Org</span>
-                        </div>
-                        <button
-                            class="btn btn-secondary btn-sm"
-                            onclick="logout()"
-                        >
-                            Logout
-                        </button>
-                    </div>
-                </header>
-
-                <div class="nav-tabs">
-                    <div class="nav-tab active" data-tab="dashboard">
-                        Dashboard
-                    </div>
-                    <div class="nav-tab" data-tab="audits">Audits</div>
-                    <div class="nav-tab" data-tab="records">Yearly Records</div>
-                    <div class="nav-tab" data-tab="analytics">Analytics</div>
-                    <div class="nav-tab" data-tab="settings">Settings</div>
                 </div>
 
-                <main class="content">
+                <div class="topbar-right">
+                    <div class="user-chip">
+                        <span id="userName">User</span>
+                        <span id="userOrg">Org</span>
+                    </div>
+                    <button class="btn secondary" onclick="logout()">
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- APP SHELL: SIDEBAR + MAIN CONTENT -->
+            <div class="app-shell">
+                <!-- SIDEBAR NAVIGATION -->
+                <aside class="sidebar">
+                    <nav class="nav">
+                        <button class="nav-tab active" data-tab="dashboard">
+                            <span class="nav-icon">📊</span>
+                            <span>Dashboard</span>
+                        </button>
+                        <button class="nav-tab" data-tab="audits">
+                            <span class="nav-icon">✔️</span>
+                            <span>Audits</span>
+                        </button>
+                        <button class="nav-tab" data-tab="records">
+                            <span class="nav-icon">📅</span>
+                            <span>Yearly Records</span>
+                        </button>
+                        <button class="nav-tab" data-tab="analytics">
+                            <span class="nav-icon">📈</span>
+                            <span>Analytics</span>
+                        </button>
+                        <button class="nav-tab" data-tab="settings">
+                            <span class="nav-icon">⚙️</span>
+                            <span>Settings</span>
+                        </button>
+                    </nav>
+                </aside>
+
+                <!-- MAIN CONTENT AREA -->
+                <main class="main-content">
                     <!-- DASHBOARD TAB -->
                     <section id="dashboard" class="tab-content active">
-                        <div class="grid grid-3">
+                        <div class="section-header">
+                            <div>
+                                <h2>Overview</h2>
+                                <p class="section-subtitle">
+                                    Summary of audits, findings, and last
+                                    activity.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="stats-grid">
                             <div class="panel">
-                                <h2>Audits</h2>
+                                <h3>Audits</h3>
                                 <div class="kpi" id="totalAudits">0</div>
                                 <div class="kpi-label">Total audits</div>
                             </div>
                             <div class="panel">
-                                <h2>Completed</h2>
+                                <h3>Completed</h3>
                                 <div class="kpi" id="completedAudits">0</div>
                                 <div class="kpi-label">Audits completed</div>
                             </div>
                             <div class="panel">
-                                <h2>In progress</h2>
+                                <h3>In progress</h3>
                                 <div class="kpi" id="pendingAudits">0</div>
                                 <div class="kpi-label">Ongoing audits</div>
                             </div>
                         </div>
 
-                        <div class="grid grid-3" style="margin-top: 16px">
+                        <div class="stats-grid" style="margin-top: 16px">
                             <div class="panel">
-                                <h2>Active NCs</h2>
+                                <h3>Active NCs</h3>
                                 <div class="kpi" id="openNCs">0</div>
                                 <div class="kpi-label">
-                                    Open major & minor NCs
+                                    Open major &amp; minor NCs
                                 </div>
                             </div>
                             <div class="panel">
-                                <h2>Observations</h2>
+                                <h3>Observations</h3>
                                 <div class="kpi" id="openObs">0</div>
                                 <div class="kpi-label">
                                     Open observations (OBS)
                                 </div>
                             </div>
                             <div class="panel">
-                                <h2>Last completed audit</h2>
+                                <h3>Last completed audit</h3>
                                 <div class="kpi-label" id="lastAuditTitle">
                                     No completed audits yet
                                 </div>
                                 <div
                                     class="kpi-label"
                                     id="lastAuditMeta"
-                                    style="
-                                        margin-top: 4px;
-                                        color: var(--text-light);
-                                    "
+                                    style="margin-top: 4px"
                                 >
                                     –
                                 </div>
                             </div>
                         </div>
 
-                        <div
-                            class="grid"
-                            style="
-                                margin-top: 16px;
-                                grid-template-columns: 2fr 1fr;
-                            "
-                        >
+                        <div class="grid-two" style="margin-top: 16px">
                             <div class="panel">
-                                <h2>Audit trend</h2>
+                                <h3>Audit trend</h3>
                                 <div class="chart-container">
                                     <canvas id="trendChart"></canvas>
                                 </div>
                             </div>
                             <div class="panel">
-                                <div class="flex-between">
-                                    <h2>Open findings</h2>
-                                    <div
+                                <div class="panel-header">
+                                    <h3>Open findings</h3>
+                                    <span
                                         class="kpi"
                                         id="totalFindings"
                                         style="font-size: 20px"
+                                        >0</span
                                     >
-                                        0
-                                    </div>
                                 </div>
                                 <div
                                     class="chart-container"
@@ -748,13 +763,29 @@
                         </div>
 
                         <div class="panel" style="margin-top: 16px">
-                            <h2>Recent activity</h2>
+                            <h3>Recent activity</h3>
                             <div id="recentActivities"></div>
                         </div>
                     </section>
 
                     <!-- AUDITS TAB -->
                     <section id="audits" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <h2>Audits</h2>
+                                <p class="section-subtitle">
+                                    Plan, execute, and track internal audits.
+                                </p>
+                            </div>
+                            <button
+                                class="btn primary"
+                                type="button"
+                                onclick="openNewAuditModal()"
+                            >
+                                + New audit
+                            </button>
+                        </div>
+
                         <div class="audits-toolbar">
                             <div class="filter-group">
                                 <select
@@ -787,13 +818,6 @@
                                     placeholder="Search audits..."
                                 />
                             </div>
-                            <button
-                                class="btn btn-primary btn-sm"
-                                style="width: auto"
-                                onclick="openNewAuditModal()"
-                            >
-                                + New audit
-                            </button>
                         </div>
 
                         <div id="auditsList"></div>
@@ -801,8 +825,13 @@
 
                     <!-- YEARLY RECORDS TAB -->
                     <section id="records" class="tab-content">
-                        <div class="flex-between" style="margin-bottom: 12px">
-                            <h2>Yearly overview</h2>
+                        <div class="section-header">
+                            <div>
+                                <h2>Yearly records</h2>
+                                <p class="section-subtitle">
+                                    Annual view of audits and findings per year.
+                                </p>
+                            </div>
                             <select
                                 id="yearSelect"
                                 class="form-control"
@@ -815,17 +844,17 @@
                             </select>
                         </div>
 
-                        <div class="grid grid-3">
+                        <div class="stats-grid">
                             <div class="panel">
-                                <h2>Audits in year</h2>
+                                <h3>Audits in year</h3>
                                 <div class="kpi" id="yearTotalAudits">0</div>
                             </div>
                             <div class="panel">
-                                <h2>Compliance</h2>
+                                <h3>Compliance</h3>
                                 <div class="kpi" id="yearCompliance">0%</div>
                             </div>
                             <div class="panel">
-                                <h2>Nonconformities</h2>
+                                <h3>Nonconformities</h3>
                                 <div class="kpi-label">
                                     Major: <span id="yearMajorNC">0</span>
                                 </div>
@@ -835,21 +864,15 @@
                             </div>
                         </div>
 
-                        <div
-                            class="grid"
-                            style="
-                                margin-top: 16px;
-                                grid-template-columns: 2fr 1fr;
-                            "
-                        >
+                        <div class="grid-two" style="margin-top: 16px">
                             <div class="panel">
-                                <h2>Monthly audits</h2>
+                                <h3>Monthly audits</h3>
                                 <div class="chart-container">
                                     <canvas id="monthlyChart"></canvas>
                                 </div>
                             </div>
                             <div class="panel">
-                                <h2>Standards coverage</h2>
+                                <h3>Standards coverage</h3>
                                 <div class="chart-container">
                                     <canvas id="standardsChart"></canvas>
                                 </div>
@@ -857,25 +880,32 @@
                         </div>
 
                         <div class="panel" style="margin-top: 16px">
-                            <h2>Most recurring findings</h2>
+                            <h3>Most recurring findings</h3>
                             <div id="recurringFindings"></div>
                         </div>
                     </section>
 
                     <!-- ANALYTICS TAB -->
                     <section id="analytics" class="tab-content">
-                        <div
-                            class="grid"
-                            style="grid-template-columns: 1.5fr 1fr"
-                        >
+                        <div class="section-header">
+                            <div>
+                                <h2>Analytics</h2>
+                                <p class="section-subtitle">
+                                    Deeper statistics on departments and
+                                    actions.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="grid-two">
                             <div class="panel">
-                                <h2>Department compliance</h2>
+                                <h3>Department compliance</h3>
                                 <div class="chart-container">
                                     <canvas id="deptChart"></canvas>
                                 </div>
                             </div>
                             <div class="panel">
-                                <h2>Corrective action status</h2>
+                                <h3>Corrective action status</h3>
                                 <div class="chart-container">
                                     <canvas id="actionChart"></canvas>
                                 </div>
@@ -885,8 +915,17 @@
 
                     <!-- SETTINGS TAB -->
                     <section id="settings" class="tab-content">
+                        <div class="section-header">
+                            <div>
+                                <h2>Settings</h2>
+                                <p class="section-subtitle">
+                                    Basic user preferences for this account.
+                                </p>
+                            </div>
+                        </div>
+
                         <div class="panel" style="max-width: 480px">
-                            <h2>User settings</h2>
+                            <h3>User settings</h3>
                             <div class="form-group">
                                 <label for="settingsName">Full name</label>
                                 <input
@@ -913,7 +952,7 @@
                                 />
                             </div>
                             <button
-                                class="btn btn-primary"
+                                class="btn primary"
                                 style="width: auto; margin-top: 18px"
                                 onclick="saveSettings()"
                             >
